@@ -1,5 +1,6 @@
 package com.example.identityservice.exception;
 
+import com.example.identityservice.dto.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -8,31 +9,43 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-
 @RestControllerAdvice
-@ResponseStatus(HttpStatus.BAD_REQUEST)
 public class GlobalExceptionHandler {
-    @ExceptionHandler(value = RuntimeException.class)
-    ResponseEntity<String> handlingRuntimeException(RuntimeException e) {
-        return ResponseEntity.badRequest().body(e.getMessage());
+    @ExceptionHandler(value = Exception.class)
+    ResponseEntity<ApiResponse> handlingRuntimeException(RuntimeException ex) {
+        ApiResponse response = new ApiResponse();
+
+        response.setCode(ErrorCode.UNCATEGORIZED.getCode());
+        response.setMessage(ErrorCode.UNCATEGORIZED.getMessage());
+        return ResponseEntity.badRequest().body(response);
     }
 
-    @ExceptionHandler(value = UserExceptionHandler.class)
-    String handlingUserExceptionHandler(UserExceptionHandler e) {
-        return e.getMessage();
+    @ExceptionHandler(UserException.class)
+    ResponseEntity<ApiResponse> handlingUserException(UserException ex) {
+        ErrorCode errorCode = ex.getErrorCode();
+
+        ApiResponse response = new ApiResponse();
+
+        response.setCode(errorCode.getCode());
+        response.setMessage(errorCode.getMessage());
+        return ResponseEntity.badRequest().body(response);
     }
 
-//    @ExceptionHandler(MethodArgumentNotValidException.class)
-//    ResponseEntity<Map<String, String>> handlingMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
-//        Map<String, String> errors = new HashMap<>();
-//        ex.getBindingResult().getAllErrors().forEach((error) -> {
-//            String fieldName = ((FieldError) error).getField();
-//            String errorMessage = error.getDefaultMessage();
-//            errors.put(fieldName, errorMessage);
-//        });
-//        return ResponseEntity.badRequest().body(errors);
-//    }
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    ResponseEntity<ApiResponse> handlingMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
+        String enumKey = ex.getFieldError().getDefaultMessage();
+        ErrorCode errorCode = ErrorCode.INVALID_KEY;
+
+        try {
+            errorCode = ErrorCode.valueOf(enumKey);
+        } catch (IllegalArgumentException e) {
+            errorCode = ErrorCode.INVALID_KEY;
+        }
+
+        ApiResponse response = new ApiResponse();
+
+        response.setCode(errorCode.getCode());
+        response.setMessage(errorCode.getMessage());
+        return ResponseEntity.badRequest().body(response);
+    }
 }

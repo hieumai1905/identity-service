@@ -1,5 +1,6 @@
 package com.example.identityservice.controller;
 
+import com.example.identityservice.dto.ApiResponse;
 import com.example.identityservice.dto.request.UserCreationRequest;
 import com.example.identityservice.dto.request.UserUpdateRequest;
 import com.example.identityservice.entity.User;
@@ -21,14 +22,11 @@ public class UserController {
     private UserService userService;
 
     @PostMapping
-    ResponseEntity<?> createUser(@Valid @RequestBody UserCreationRequest user, BindingResult result) {
-        if (result.hasErrors()) {
-            List<String> errors = result.getAllErrors().stream()
-                    .map(DefaultMessageSourceResolvable::getDefaultMessage)
-                    .collect(Collectors.toList());
-            return ResponseEntity.badRequest().body(errors);
-        }
-        return ResponseEntity.ok(userService.createUser(user));
+    ApiResponse<User> createUser(@Valid @RequestBody UserCreationRequest user) {
+        ApiResponse<User> response = new ApiResponse<>();
+
+        response.setResult(userService.createUser(user));
+        return response;
     }
 
     @GetMapping

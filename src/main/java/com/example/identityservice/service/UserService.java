@@ -3,7 +3,8 @@ package com.example.identityservice.service;
 import com.example.identityservice.dto.request.UserCreationRequest;
 import com.example.identityservice.dto.request.UserUpdateRequest;
 import com.example.identityservice.entity.User;
-import com.example.identityservice.exception.UserExceptionHandler;
+import com.example.identityservice.exception.ErrorCode;
+import com.example.identityservice.exception.UserException;
 import com.example.identityservice.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,7 +20,7 @@ public class UserService {
         User user = new User();
 
         if (userRepository.existsByUsername(request.getUsername())) {
-            throw new UserExceptionHandler("Username already exists");
+            throw new UserException(ErrorCode.USER_EXITED);
         }
 
         user.setUsername(request.getUsername());
@@ -37,12 +38,12 @@ public class UserService {
 
     public User getUser(String id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new UserExceptionHandler("User not found"));
+                .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
     public User updateUser(String id, UserUpdateRequest request) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new UserExceptionHandler("User not found"));
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
         user.setPassword(request.getPassword());
         user.setFirstName(request.getFirstName());
