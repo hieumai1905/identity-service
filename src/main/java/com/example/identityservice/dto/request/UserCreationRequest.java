@@ -1,36 +1,23 @@
 package com.example.identityservice.dto.request;
 
-import com.example.identityservice.exception.ErrorCode;
 import jakarta.validation.constraints.Size;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
 
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@FieldDefaults(level = lombok.AccessLevel.PRIVATE)
 public class UserCreationRequest {
     @Size(min = 3, message = "USERNAME_INVALID")
-    private String username;
+    String username;
     @Size(min = 8, message = "PASSWORD_INVALID")
-    private String password;
-    private String firstName;
-    private String lastName;
-    private LocalDate dob;
-
-    public String getUsername() {
-        return username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public LocalDate getDob() {
-        return dob;
-    }
+    String password;
+    String firstName;
+    String lastName;
+    LocalDate dob;
+    final String role = "USER";
 }

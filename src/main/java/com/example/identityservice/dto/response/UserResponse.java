@@ -1,5 +1,6 @@
-package com.example.identityservice.dto.request;
+package com.example.identityservice.dto.response;
 
+import jakarta.persistence.Entity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,9 +14,16 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE)
-public class UserUpdateRequest {
+public class UserResponse {
+    String id;
+
+    String username;
+
     String password;
+
     String firstName;
+
     String lastName;
+
     LocalDate dob;
 }

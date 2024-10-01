@@ -1,12 +1,9 @@
 package com.example.identityservice.exception;
 
 import com.example.identityservice.dto.ApiResponse;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
@@ -34,7 +31,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     ResponseEntity<ApiResponse> handlingMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
         String enumKey = ex.getFieldError().getDefaultMessage();
-        ErrorCode errorCode = ErrorCode.INVALID_KEY;
+        ErrorCode errorCode;
 
         try {
             errorCode = ErrorCode.valueOf(enumKey);
