@@ -8,10 +8,12 @@ import com.example.identityservice.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
@@ -27,8 +29,11 @@ public class UserController {
     }
 
     @GetMapping
-    List<UserResponse> getUsers() {
-        return userService.getUsers();
+    ApiResponse<List<UserResponse>> getUsers() {
+        return ApiResponse.<List<UserResponse>>
+                        builder()
+                .result(userService.getUsers())
+                .build();
     }
 
     @GetMapping("{id}")
@@ -37,6 +42,13 @@ public class UserController {
                 .result(userService.getUser(id))
                 .build();
 
+    }
+
+    @GetMapping("/myIfo")
+    ApiResponse<UserResponse> getMyInfo() {
+        return ApiResponse.<UserResponse>builder()
+                .result(userService.getMyInfo())
+                .build();
     }
 
     @PutMapping("{id}")

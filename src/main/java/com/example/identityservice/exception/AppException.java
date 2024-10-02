@@ -1,14 +1,15 @@
 package com.example.identityservice.exception;
 
+
 import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 
-@Data
+@Setter
+@Getter
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE)
-public class UserException extends RuntimeException{
-     ErrorCode errorCode;
+public class AppException extends RuntimeException {
+    ErrorCode errorCode;
 }

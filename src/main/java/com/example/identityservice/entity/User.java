@@ -1,10 +1,8 @@
 package com.example.identityservice.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -12,23 +10,27 @@ import lombok.experimental.FieldDefaults;
 import java.time.LocalDate;
 import java.util.Set;
 
-@Data
 @Entity
+@Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE)
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-        String id;
+    String id;
 
-        String username;
+    String username;
 
-        String password;
+    String password;
 
-        String firstName;
+    String firstName;
 
-        String lastName;
+    String lastName;
 
-        LocalDate dob;
+    LocalDate dob;
+
+    @ElementCollection
+    Set<String> roles;
 }

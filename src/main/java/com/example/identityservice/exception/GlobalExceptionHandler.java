@@ -1,48 +1,62 @@
 package com.example.identityservice.exception;
 
 import com.example.identityservice.dto.ApiResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-@RestControllerAdvice
+import java.util.HashMap;
+import java.util.Map;
+
+@ControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
+
     @ExceptionHandler(value = Exception.class)
-    ResponseEntity<ApiResponse> handlingRuntimeException(RuntimeException ex) {
-        ApiResponse response = new ApiResponse();
+    ResponseEntity<ApiResponse> handlingRuntimeException(RuntimeException exception) {
+        log.error("Exception: ", exception);
+        ApiResponse apiResponse = new ApiResponse();
 
-        response.setCode(ErrorCode.UNCATEGORIZED.getCode());
-        response.setMessage(ErrorCode.UNCATEGORIZED.getMessage());
-        return ResponseEntity.badRequest().body(response);
-    }
+        apiResponse.setCode(ErrorCode.UNCATEGORIZED_EXCEPTION.getCode());
+        apiResponse.setMessage(ErrorCode.UNCATEGORIZED_EXCEPTION.getMessage());
 
-    @ExceptionHandler(UserException.class)
-    ResponseEntity<ApiResponse> handlingUserException(UserException ex) {
-        ErrorCode errorCode = ex.getErrorCode();
-
-        ApiResponse response = new ApiResponse();
-
-        response.setCode(errorCode.getCode());
-        response.setMessage(errorCode.getMessage());
-        return ResponseEntity.badRequest().body(response);
+        return ResponseEntity.badRequest().body(apiResponse);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    ResponseEntity<ApiResponse> handlingMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
-        String enumKey = ex.getFieldError().getDefaultMessage();
-        ErrorCode errorCode;
+    ResponseEntity<Map<String, String>> handlingMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getAllErrors().forEach((error) -> {
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
+        });
+        return ResponseEntity.badRequest().body(errors);
+    }
 
-        try {
-            errorCode = ErrorCode.valueOf(enumKey);
-        } catch (IllegalArgumentException e) {
-            errorCode = ErrorCode.INVALID_KEY;
-        }
+    @ExceptionHandler(value = AppException.class)
+    ResponseEntity<ApiResponse> handlingAppException(AppException exception) {
+        ErrorCode errorCode = exception.getErrorCode();
+        ApiResponse apiResponse = new ApiResponse();
 
-        ApiResponse response = new ApiResponse();
+        apiResponse.setCode(errorCode.getCode());
+        apiResponse.setMessage(errorCode.getMessage());
 
-        response.setCode(errorCode.getCode());
-        response.setMessage(errorCode.getMessage());
-        return ResponseEntity.badRequest().body(response);
+        return ResponseEntity.status(errorCode.getStatusCode()).body(apiResponse);
+    }
+
+    @ExceptionHandler(value = AccessDeniedException.class)
+    ResponseEntity<ApiResponse> handlingAccessDeniedException() {
+        ErrorCode errorCode = ErrorCode.UNAUTHORIZED;
+
+        return ResponseEntity.status(errorCode.getStatusCode())
+                .body(ApiResponse.builder()
+                        .code(errorCode.getCode())
+                        .message(errorCode.getMessage())
+                        .build());
     }
 }
