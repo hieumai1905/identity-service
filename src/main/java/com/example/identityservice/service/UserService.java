@@ -3,11 +3,12 @@ package com.example.identityservice.service;
 import com.example.identityservice.dto.request.UserCreationRequest;
 import com.example.identityservice.dto.request.UserUpdateRequest;
 import com.example.identityservice.dto.response.UserResponse;
+import com.example.identityservice.entity.Role;
 import com.example.identityservice.entity.User;
-import com.example.identityservice.enums.Role;
 import com.example.identityservice.exception.AppException;
 import com.example.identityservice.exception.ErrorCode;
 import com.example.identityservice.mapper.UserMapper;
+import com.example.identityservice.repository.RoleRepository;
 import com.example.identityservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -16,10 +17,10 @@ import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -34,20 +35,28 @@ public class UserService {
 
     PasswordEncoder passwordEncoder;
 
+    RoleRepository roleRepository;
+
     public UserResponse createUser(UserCreationRequest request) {
         if (userRepository.existsByUsername(request.getUsername())) {
             throw new AppException(ErrorCode.USER_EXISTED);
         }
 
+        Role role = Role.builder()
+                .name("USER")
+                .description("User role with basic permission")
+                .build();
+
         User user = userMapper.toEntity(request);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setRoles(Set.of(Role.USER.name()));
+        user.setRoles(Set.of(role));
         user = userRepository.save(user);
         return userMapper.toUserResponse(user);
     }
 
 
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAuthority('CREATE_USER')")
     public List<UserResponse> getUsers() {
         return userRepository.findAll().stream().map(userMapper::toUserResponse).toList();
     }
@@ -72,6 +81,10 @@ public class UserService {
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         userMapper.userUpdateRequestToUser(request, user);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+
+        List<Role> roles = roleRepository.findAllById(request.getRoles());
+        user.setRoles(new HashSet<>(roles));
         return userMapper.toUserResponse(userRepository.save(user));
     }
 
