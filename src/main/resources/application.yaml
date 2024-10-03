@@ -13,6 +13,11 @@ spring:
       ddl-auto: update
     show-sql: true
 
+app:
+  userDefault:
+    username: "admin"
+    password: "admin"
+
 jwt:
   signerKey: "8c1Gl/AxoQidiUTcJRpTXLdGhup4KS68yoSKI2cpCZzUtfoc09n1tRoEOHZNIx7B"
   valid-duration: 3600 #in seconds
