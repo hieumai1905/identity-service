@@ -55,8 +55,7 @@ public class UserService {
     }
 
 
-//    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PreAuthorize("hasAuthority('CREATE_USER')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public List<UserResponse> getUsers() {
         return userRepository.findAll().stream().map(userMapper::toUserResponse).toList();
     }

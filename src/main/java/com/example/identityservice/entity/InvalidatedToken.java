@@ -1,24 +1,22 @@
 package com.example.identityservice.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.util.Set;
+import java.util.Date;
 
-@Entity(name = "roles")
+@Entity(name = "invalidated_tokens")
 @Getter
 @Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE)
-public class Role {
+public class InvalidatedToken {
     @Id
-    String name;
+    String id;
 
-    String description;
-
-    @ManyToMany
-    Set<Permission> permissions;
+    Date expiryTime;
 }

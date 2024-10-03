@@ -5,7 +5,7 @@ import jakarta.persistence.Id;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-@Entity
+@Entity(name = "permissions")
 @Getter
 @Setter
 @Builder

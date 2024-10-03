@@ -7,7 +7,7 @@ import lombok.experimental.FieldDefaults;
 import java.time.LocalDate;
 import java.util.Set;
 
-@Entity
+@Entity(name = "users")
 @Getter
 @Setter
 @Builder
