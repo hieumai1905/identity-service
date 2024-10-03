@@ -1,15 +1,17 @@
 package com.example.identityservice.controller;
 
+import java.util.List;
+
+import org.springframework.web.bind.annotation.*;
+
 import com.example.identityservice.dto.ApiResponse;
 import com.example.identityservice.dto.request.RoleRequest;
 import com.example.identityservice.dto.response.RoleResponse;
 import com.example.identityservice.service.RoleService;
+
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Slf4j
 @RestController
@@ -28,8 +30,7 @@ public class RoleController {
 
     @GetMapping
     ApiResponse<List<RoleResponse>> getAll() {
-        return ApiResponse.<List<RoleResponse>>
-                        builder()
+        return ApiResponse.<List<RoleResponse>>builder()
                 .result(roleService.getAll())
                 .build();
     }

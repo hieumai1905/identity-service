@@ -1,14 +1,13 @@
 package com.example.identityservice.dto.response;
 
-import jakarta.persistence.Entity;
+import java.time.LocalDate;
+import java.util.Set;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
-
-import java.time.LocalDate;
-import java.util.Set;
 
 @Data
 @Builder

@@ -1,15 +1,17 @@
 package com.example.identityservice.controller;
 
+import java.util.List;
+
+import org.springframework.web.bind.annotation.*;
+
 import com.example.identityservice.dto.ApiResponse;
 import com.example.identityservice.dto.request.PermissionRequest;
 import com.example.identityservice.dto.request.PermissionResponse;
 import com.example.identityservice.service.PermissionService;
+
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Slf4j
 @RestController
@@ -28,8 +30,7 @@ public class PermissionController {
 
     @GetMapping
     ApiResponse<List<PermissionResponse>> getAll() {
-        return ApiResponse.<List<PermissionResponse>>
-                        builder()
+        return ApiResponse.<List<PermissionResponse>>builder()
                 .result(permissionService.getAll())
                 .build();
     }

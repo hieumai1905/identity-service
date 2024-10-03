@@ -9,13 +9,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.HashSet;
-import java.util.Set;
 
 @Slf4j
 @Configuration
@@ -26,16 +26,18 @@ public class ApplicationInitConfig {
     PasswordEncoder passwordEncoder;
 
     @NonFinal
-    static final String ADMIN_USER_NAME = "admin";
+    @Value("${app.userDefault.username}")
+    String defaultUserName;
 
     @NonFinal
-    static final String ADMIN_PASSWORD = "admin";
+    @Value("${app.userDefault.password}")
+    String defaultPassword;
 
     @Bean
     ApplicationRunner applicationRunner(UserRepository userRepository, RoleRepository roleRepository) {
         log.info("Initializing application.....");
         return args -> {
-            if (userRepository.findByUsername(ADMIN_USER_NAME).isEmpty()) {
+            if (userRepository.findByUsername(defaultUserName).isEmpty()) {
                 roleRepository.save(Role.builder()
                         .name(PredefinedRole.USER_ROLE)
                         .description("User role")
@@ -50,8 +52,8 @@ public class ApplicationInitConfig {
                 roles.add(adminRole);
 
                 User user = User.builder()
-                        .username(ADMIN_USER_NAME)
-                        .password(passwordEncoder.encode(ADMIN_PASSWORD))
+                        .username(defaultUserName)
+                        .password(passwordEncoder.encode(defaultPassword))
                         .roles(roles)
                         .build();
 

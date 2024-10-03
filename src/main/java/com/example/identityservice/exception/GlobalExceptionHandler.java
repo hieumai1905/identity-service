@@ -3,9 +3,6 @@ package com.example.identityservice.exception;
 import java.util.Map;
 import java.util.Objects;
 
-import com.example.identityservice.dto.ApiResponse;
-import com.example.identityservice.exception.AppException;
-import com.example.identityservice.exception.ErrorCode;
 import jakarta.validation.ConstraintViolation;
 
 import org.springframework.http.ResponseEntity;
@@ -14,6 +11,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import com.example.identityservice.dto.ApiResponse;
 
 import lombok.extern.slf4j.Slf4j;
 

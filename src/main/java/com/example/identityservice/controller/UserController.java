@@ -1,17 +1,20 @@
 package com.example.identityservice.controller;
 
+import java.util.List;
+
+import jakarta.validation.Valid;
+
+import org.springframework.web.bind.annotation.*;
+
 import com.example.identityservice.dto.ApiResponse;
 import com.example.identityservice.dto.request.UserCreationRequest;
 import com.example.identityservice.dto.request.UserUpdateRequest;
 import com.example.identityservice.dto.response.UserResponse;
 import com.example.identityservice.service.UserService;
-import jakarta.validation.Valid;
+
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Slf4j
 @RestController
@@ -30,8 +33,7 @@ public class UserController {
 
     @GetMapping
     ApiResponse<List<UserResponse>> getUsers() {
-        return ApiResponse.<List<UserResponse>>
-                        builder()
+        return ApiResponse.<List<UserResponse>>builder()
                 .result(userService.getUsers())
                 .build();
     }
@@ -41,7 +43,6 @@ public class UserController {
         return ApiResponse.<UserResponse>builder()
                 .result(userService.getUser(id))
                 .build();
-
     }
 
     @GetMapping("/myIfo")
@@ -61,8 +62,6 @@ public class UserController {
     @DeleteMapping("{id}")
     ApiResponse<String> deleteUser(@PathVariable("id") String id) {
         userService.deleteUser(id);
-        return ApiResponse.<String>builder()
-                .result("User deleted")
-                .build();
+        return ApiResponse.<String>builder().result("User deleted").build();
     }
 }
