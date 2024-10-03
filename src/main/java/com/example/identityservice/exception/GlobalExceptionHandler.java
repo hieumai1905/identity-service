@@ -1,16 +1,21 @@
 package com.example.identityservice.exception;
 
+import java.util.Map;
+import java.util.Objects;
+
 import com.example.identityservice.dto.ApiResponse;
+import com.example.identityservice.exception.AppException;
+import com.example.identityservice.exception.ErrorCode;
 import jakarta.validation.ConstraintViolation;
-import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import java.util.Map;
-import java.util.Objects;
+
+import lombok.extern.slf4j.Slf4j;
 
 @ControllerAdvice
 @Slf4j
@@ -29,48 +34,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(apiResponse);
     }
 
-    @ExceptionHandler(value = MethodArgumentNotValidException.class)
-    ResponseEntity<ApiResponse> handlingValidation(MethodArgumentNotValidException exception) {
-        // Lấy message mặc định từ lỗi validation đầu tiên
-        String enumKey = exception.getFieldError().getDefaultMessage();
-        ErrorCode errorCode = ErrorCode.INVALID_KEY; // Mặc định là INVALID_KEY
-        Map<String, Object> attributes = null;
-
-        try {
-            // Chuyển đổi message thành ErrorCode enum
-            errorCode = ErrorCode.valueOf(enumKey);
-
-            // Lấy ConstraintViolation từ lỗi
-            var constraintViolation = exception.getBindingResult()
-                    .getAllErrors().get(0)
-                    .unwrap(ConstraintViolation.class);
-
-            // Lấy các thuộc tính của constraint
-            attributes = constraintViolation.getConstraintDescriptor().getAttributes();
-            log.info(attributes.toString());
-        } catch (IllegalArgumentException e) {
-            // Nếu không thể chuyển đổi message thành ErrorCode, giữ nguyên INVALID_KEY
-        }
-
-        // Tạo response
-        ApiResponse apiResponse = new ApiResponse();
-        apiResponse.setCode(errorCode.getCode());
-
-        // Set message, thay thế placeholder nếu có attributes
-        apiResponse.setMessage(
-                Objects.nonNull(attributes)
-                        ? mapAttribute(errorCode.getMessage(), attributes)
-                        : errorCode.getMessage()
-        );
-
-        return ResponseEntity.badRequest().body(apiResponse);
-    }
-
-    private String mapAttribute(String message, Map<String, Object> attributes) {
-        String minValue = String.valueOf(attributes.get(MIN_ATTRIBUTE));
-        return message.replace("{" + MIN_ATTRIBUTE + "}", minValue);
-    }
-
     @ExceptionHandler(value = AppException.class)
     ResponseEntity<ApiResponse> handlingAppException(AppException exception) {
         ErrorCode errorCode = exception.getErrorCode();
@@ -83,7 +46,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(value = AccessDeniedException.class)
-    ResponseEntity<ApiResponse> handlingAccessDeniedException() {
+    ResponseEntity<ApiResponse> handlingAccessDeniedException(AccessDeniedException exception) {
         ErrorCode errorCode = ErrorCode.UNAUTHORIZED;
 
         return ResponseEntity.status(errorCode.getStatusCode())
@@ -91,5 +54,42 @@ public class GlobalExceptionHandler {
                         .code(errorCode.getCode())
                         .message(errorCode.getMessage())
                         .build());
+    }
+
+    @ExceptionHandler(value = MethodArgumentNotValidException.class)
+    ResponseEntity<ApiResponse> handlingValidation(MethodArgumentNotValidException exception) {
+        String enumKey = exception.getFieldError().getDefaultMessage();
+
+        ErrorCode errorCode = ErrorCode.INVALID_KEY;
+        Map<String, Object> attributes = null;
+        try {
+            errorCode = ErrorCode.valueOf(enumKey);
+
+            var constraintViolation =
+                    exception.getBindingResult().getAllErrors().get(0).unwrap(ConstraintViolation.class);
+
+            attributes = constraintViolation.getConstraintDescriptor().getAttributes();
+
+            log.info(attributes.toString());
+
+        } catch (IllegalArgumentException e) {
+
+        }
+
+        ApiResponse apiResponse = new ApiResponse();
+
+        apiResponse.setCode(errorCode.getCode());
+        apiResponse.setMessage(
+                Objects.nonNull(attributes)
+                        ? mapAttribute(errorCode.getMessage(), attributes)
+                        : errorCode.getMessage());
+
+        return ResponseEntity.badRequest().body(apiResponse);
+    }
+
+    private String mapAttribute(String message, Map<String, Object> attributes) {
+        String minValue = String.valueOf(attributes.get(MIN_ATTRIBUTE));
+
+        return message.replace("{" + MIN_ATTRIBUTE + "}", minValue);
     }
 }
